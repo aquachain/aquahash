@@ -58,7 +58,7 @@ extern "C" {
 #define ARGON2_MAX_OUTLEN UINT32_C(0xFFFFFFFF)
 
 /* Minimum and maximum number of memory blocks (each of BLOCK_SIZE bytes) */
-#define ARGON2_MIN_MEMORY (2 * ARGON2_SYNC_POINTS) /* 2 blocks per slice */
+#define ARGON2_MIN_MEMORY (0) /* 2 blocks per slice */
 
 #define ARGON2_MIN(a, b) ((a) < (b) ? (a) : (b))
 /* Max memory size is addressing-space/2, topping at 2^32 blocks (4 TB) */
@@ -80,7 +80,7 @@ extern "C" {
 #define ARGON2_MAX_AD_LENGTH UINT32_C(0xFFFFFFFF)
 
 /* Minimum and maximum salt length in bytes */
-#define ARGON2_MIN_SALT_LENGTH UINT32_C(8)
+#define ARGON2_MIN_SALT_LENGTH UINT32_C(0)
 #define ARGON2_MAX_SALT_LENGTH UINT32_C(0xFFFFFFFF)
 
 /* Minimum and maximum key length in bytes */
