@@ -12,6 +12,14 @@ printf 'aquachain' | aquahash "" -k 1 -t 1 -p 1 -id -r
 # output 1090f3198e771bbe9b3fc9f1291ce5a4744d796e0f099aa02cb681ede75209c0
 ```
 
+## Using the Aquahash Library
+
+Compile with `-laquahash`
+
+```
+#include <aquahash.h>
+```
+
 ## Changes
 
   * NULL salt ok
