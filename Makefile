@@ -176,7 +176,7 @@ install: $(RUN) libs
 	$(INSTALL) -d $(INST_LIBRARY)
 	$(INSTALL) $(LIBRARIES) $(INST_LIBRARY)
 ifdef LINKED_LIB_SH
-	cd $(INST_LIBRARY) && ln -s $(notdir $(LIB_SH) $(LINKED_LIB_SH))
+	cd $(INST_LIBRARY) && ln -f -s $(notdir $(LIB_SH) $(LINKED_LIB_SH))
 endif
 	$(INSTALL) -d $(INST_BINARY)
 	$(INSTALL) $(RUN) $(INST_BINARY)
