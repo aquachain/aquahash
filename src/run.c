@@ -23,7 +23,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "argon2.h"
+#include "aquahash.h"
 #include "core.h"
 
 #define T_COST_DEF 3
@@ -115,6 +115,7 @@ static void run(uint32_t outlen, char *pwd, size_t pwdlen, char *salt, uint32_t 
     if(UINT32_MAX < saltlen) {
         fatal("salt is too long");
     }
+    printf("saltlen=%lu, salt=%s\n", saltlen, salt);
 
     UNUSED_PARAMETER(lanes);
 

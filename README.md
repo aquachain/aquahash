@@ -1,12 +1,22 @@
 # Argon2
 
-[![Build Status](https://travis-ci.org/P-H-C/phc-winner-argon2.svg?branch=master)](https://travis-ci.org/P-H-C/phc-winner-argon2)
-[![Build status](https://ci.appveyor.com/api/projects/status/8nfwuwq55sgfkele?svg=true)](https://ci.appveyor.com/project/P-H-C/phc-winner-argon2)
-[![codecov.io](https://codecov.io/github/P-H-C/phc-winner-argon2/coverage.svg?branch=master)](https://codecov.io/github/P-H-C/phc-winner-argon2?branch=master)
+This is the reference C implementation of Aquahash, using Argon2.
 
-This is the reference C implementation of Argon2, the password-hashing
-function that won the [Password Hashing Competition
-(PHC)](https://password-hashing.net).
+Warning: Don't use these unsafe parameters for secure password hashing applications.
+
+## Test Hash
+included is a program to hash strings and files (anything from stdin)
+
+```
+printf 'aquachain' | aquahash "" -k 1 -t 1 -p 1 -id -r
+# output 1090f3198e771bbe9b3fc9f1291ce5a4744d796e0f099aa02cb681ede75209c0
+```
+
+## Changes
+
+  * NULL salt ok
+  * Min lanes = 1
+  * Min mem = 1
 
 Argon2 is a password-hashing function that summarizes the state of the
 art in the design of memory-hard functions and can be used to hash
@@ -128,7 +138,7 @@ Compile for example as `gcc test.c libargon2.a -Isrc -o test`, if the program
 below is named `test.c` and placed in the project's root directory.
 
 ```c
-#include "argon2.h"
+#include "aquahash.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

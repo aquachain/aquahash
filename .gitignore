@@ -1,6 +1,11 @@
-argon2
+/argon2
+/aquahash
 libargon2.a
+*.a
+*.so
+*.so.1
 libargon2.so
+libargon2.so.1
 libargon2.dylib
 .DS_Store
 src/*.o

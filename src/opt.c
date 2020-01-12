@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "argon2.h"
+#include "aquahash.h"
 #include "core.h"
 
 #include "blake2/blake2.h"

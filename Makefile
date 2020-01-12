@@ -15,14 +15,14 @@
 # software. If not, they may be obtained at the above URLs.
 #
 
-RUN = argon2
+RUN = aquahash
 BENCH = bench
 GENKAT = genkat
 
 # Increment on an ABI breaking change
 ABI_VERSION = 1
 
-DIST = phc-winner-argon2
+DIST = aquahash-argon2
 
 SRC = src/argon2.c src/core.c src/blake2/blake2b.c src/thread.c src/encoding.c
 SRC_RUN = src/run.c
@@ -57,7 +57,7 @@ endif
 BUILD_PATH := $(shell pwd)
 KERNEL_NAME := $(shell uname -s)
 
-LIB_NAME=argon2
+LIB_NAME=aquahash
 ifeq ($(KERNEL_NAME), Linux)
 	LIB_EXT := so.$(ABI_VERSION)
 	LIB_CFLAGS := -shared -fPIC -fvisibility=hidden -DA2_VISCTL=1
@@ -107,7 +107,7 @@ endif
 
 
 LIBRARIES = $(LIB_SH) $(LIB_ST)
-HEADERS = include/argon2.h
+HEADERS = include/aquahash.h
 
 INSTALL = install
 
