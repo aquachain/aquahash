@@ -22,13 +22,13 @@
 #include "blake2.h"
 #include "blake2-impl.h"
 
-static const uint64_t blake2b_IV[8] = {
+static const uint64_t aquablake2b_IV[8] = {
     UINT64_C(0x6a09e667f3bcc908), UINT64_C(0xbb67ae8584caa73b),
     UINT64_C(0x3c6ef372fe94f82b), UINT64_C(0xa54ff53a5f1d36f1),
     UINT64_C(0x510e527fade682d1), UINT64_C(0x9b05688c2b3e6c1f),
     UINT64_C(0x1f83d9abfb41bd6b), UINT64_C(0x5be0cd19137e2179)};
 
-static const unsigned int blake2b_sigma[12][16] = {
+static const unsigned int aquablake2b_sigma[12][16] = {
     {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
     {14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3},
     {11, 8, 12, 0, 5, 2, 15, 13, 10, 14, 3, 6, 7, 1, 9, 4},
@@ -43,34 +43,34 @@ static const unsigned int blake2b_sigma[12][16] = {
     {14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3},
 };
 
-static BLAKE2_INLINE void blake2b_set_lastnode(blake2b_state *S) {
+static BLAKE2_INLINE void aquablake2b_set_lastnode(aquablake2b_state *S) {
     S->f[1] = (uint64_t)-1;
 }
 
-static BLAKE2_INLINE void blake2b_set_lastblock(blake2b_state *S) {
+static BLAKE2_INLINE void aquablake2b_set_lastblock(aquablake2b_state *S) {
     if (S->last_node) {
-        blake2b_set_lastnode(S);
+        aquablake2b_set_lastnode(S);
     }
     S->f[0] = (uint64_t)-1;
 }
 
-static BLAKE2_INLINE void blake2b_increment_counter(blake2b_state *S,
+static BLAKE2_INLINE void aquablake2b_increment_counter(aquablake2b_state *S,
                                                     uint64_t inc) {
     S->t[0] += inc;
     S->t[1] += (S->t[0] < inc);
 }
 
-static BLAKE2_INLINE void blake2b_invalidate_state(blake2b_state *S) {
+static BLAKE2_INLINE void aquablake2b_invalidate_state(aquablake2b_state *S) {
     clear_internal_memory(S, sizeof(*S));      /* wipe */
-    blake2b_set_lastblock(S); /* invalidate for further use */
+    aquablake2b_set_lastblock(S); /* invalidate for further use */
 }
 
-static BLAKE2_INLINE void blake2b_init0(blake2b_state *S) {
+static BLAKE2_INLINE void aquablake2b_init0(aquablake2b_state *S) {
     memset(S, 0, sizeof(*S));
-    memcpy(S->h, blake2b_IV, sizeof(S->h));
+    memcpy(S->h, aquablake2b_IV, sizeof(S->h));
 }
 
-int blake2b_init_param(blake2b_state *S, const blake2b_param *P) {
+int aquablake2b_init_param(aquablake2b_state *S, const aquablake2b_param *P) {
     const unsigned char *p = (const unsigned char *)P;
     unsigned int i;
 
@@ -78,7 +78,7 @@ int blake2b_init_param(blake2b_state *S, const blake2b_param *P) {
         return -1;
     }
 
-    blake2b_init0(S);
+    aquablake2b_init0(S);
     /* IV XOR Parameter Block */
     for (i = 0; i < 8; ++i) {
         S->h[i] ^= load64(&p[i * sizeof(S->h[i])]);
@@ -88,15 +88,15 @@ int blake2b_init_param(blake2b_state *S, const blake2b_param *P) {
 }
 
 /* Sequential blake2b initialization */
-int blake2b_init(blake2b_state *S, size_t outlen) {
-    blake2b_param P;
+int aquablake2b_init(aquablake2b_state *S, size_t outlen) {
+    aquablake2b_param P;
 
     if (S == NULL) {
         return -1;
     }
 
     if ((outlen == 0) || (outlen > BLAKE2B_OUTBYTES)) {
-        blake2b_invalidate_state(S);
+        aquablake2b_invalidate_state(S);
         return -1;
     }
 
@@ -113,24 +113,24 @@ int blake2b_init(blake2b_state *S, size_t outlen) {
     memset(P.salt, 0, sizeof(P.salt));
     memset(P.personal, 0, sizeof(P.personal));
 
-    return blake2b_init_param(S, &P);
+    return aquablake2b_init_param(S, &P);
 }
 
-int blake2b_init_key(blake2b_state *S, size_t outlen, const void *key,
+int aquablake2b_init_key(aquablake2b_state *S, size_t outlen, const void *key,
                      size_t keylen) {
-    blake2b_param P;
+    aquablake2b_param P;
 
     if (S == NULL) {
         return -1;
     }
 
     if ((outlen == 0) || (outlen > BLAKE2B_OUTBYTES)) {
-        blake2b_invalidate_state(S);
+        aquablake2b_invalidate_state(S);
         return -1;
     }
 
     if ((key == 0) || (keylen == 0) || (keylen > BLAKE2B_KEYBYTES)) {
-        blake2b_invalidate_state(S);
+        aquablake2b_invalidate_state(S);
         return -1;
     }
 
@@ -147,8 +147,8 @@ int blake2b_init_key(blake2b_state *S, size_t outlen, const void *key,
     memset(P.salt, 0, sizeof(P.salt));
     memset(P.personal, 0, sizeof(P.personal));
 
-    if (blake2b_init_param(S, &P) < 0) {
-        blake2b_invalidate_state(S);
+    if (aquablake2b_init_param(S, &P) < 0) {
+        aquablake2b_invalidate_state(S);
         return -1;
     }
 
@@ -156,14 +156,14 @@ int blake2b_init_key(blake2b_state *S, size_t outlen, const void *key,
         uint8_t block[BLAKE2B_BLOCKBYTES];
         memset(block, 0, BLAKE2B_BLOCKBYTES);
         memcpy(block, key, keylen);
-        blake2b_update(S, block, BLAKE2B_BLOCKBYTES);
+        aquablake2b_update(S, block, BLAKE2B_BLOCKBYTES);
         /* Burn the key from stack */
         clear_internal_memory(block, BLAKE2B_BLOCKBYTES);
     }
     return 0;
 }
 
-static void blake2b_compress(blake2b_state *S, const uint8_t *block) {
+static void aquablake2b_compress(aquablake2b_state *S, const uint8_t *block) {
     uint64_t m[16];
     uint64_t v[16];
     unsigned int i, r;
@@ -176,22 +176,22 @@ static void blake2b_compress(blake2b_state *S, const uint8_t *block) {
         v[i] = S->h[i];
     }
 
-    v[8] = blake2b_IV[0];
-    v[9] = blake2b_IV[1];
-    v[10] = blake2b_IV[2];
-    v[11] = blake2b_IV[3];
-    v[12] = blake2b_IV[4] ^ S->t[0];
-    v[13] = blake2b_IV[5] ^ S->t[1];
-    v[14] = blake2b_IV[6] ^ S->f[0];
-    v[15] = blake2b_IV[7] ^ S->f[1];
+    v[8] = aquablake2b_IV[0];
+    v[9] = aquablake2b_IV[1];
+    v[10] = aquablake2b_IV[2];
+    v[11] = aquablake2b_IV[3];
+    v[12] = aquablake2b_IV[4] ^ S->t[0];
+    v[13] = aquablake2b_IV[5] ^ S->t[1];
+    v[14] = aquablake2b_IV[6] ^ S->f[0];
+    v[15] = aquablake2b_IV[7] ^ S->f[1];
 
 #define G(r, i, a, b, c, d)                                                    \
     do {                                                                       \
-        a = a + b + m[blake2b_sigma[r][2 * i + 0]];                            \
+        a = a + b + m[aquablake2b_sigma[r][2 * i + 0]];                            \
         d = rotr64(d ^ a, 32);                                                 \
         c = c + d;                                                             \
         b = rotr64(b ^ c, 24);                                                 \
-        a = a + b + m[blake2b_sigma[r][2 * i + 1]];                            \
+        a = a + b + m[aquablake2b_sigma[r][2 * i + 1]];                            \
         d = rotr64(d ^ a, 16);                                                 \
         c = c + d;                                                             \
         b = rotr64(b ^ c, 63);                                                 \
@@ -221,7 +221,7 @@ static void blake2b_compress(blake2b_state *S, const uint8_t *block) {
 #undef ROUND
 }
 
-int blake2b_update(blake2b_state *S, const void *in, size_t inlen) {
+int aquablake2b_update(aquablake2b_state *S, const void *in, size_t inlen) {
     const uint8_t *pin = (const uint8_t *)in;
 
     if (inlen == 0) {
@@ -243,15 +243,15 @@ int blake2b_update(blake2b_state *S, const void *in, size_t inlen) {
         size_t left = S->buflen;
         size_t fill = BLAKE2B_BLOCKBYTES - left;
         memcpy(&S->buf[left], pin, fill);
-        blake2b_increment_counter(S, BLAKE2B_BLOCKBYTES);
-        blake2b_compress(S, S->buf);
+        aquablake2b_increment_counter(S, BLAKE2B_BLOCKBYTES);
+        aquablake2b_compress(S, S->buf);
         S->buflen = 0;
         inlen -= fill;
         pin += fill;
         /* Avoid buffer copies when possible */
         while (inlen > BLAKE2B_BLOCKBYTES) {
-            blake2b_increment_counter(S, BLAKE2B_BLOCKBYTES);
-            blake2b_compress(S, pin);
+            aquablake2b_increment_counter(S, BLAKE2B_BLOCKBYTES);
+            aquablake2b_compress(S, pin);
             inlen -= BLAKE2B_BLOCKBYTES;
             pin += BLAKE2B_BLOCKBYTES;
         }
@@ -261,7 +261,7 @@ int blake2b_update(blake2b_state *S, const void *in, size_t inlen) {
     return 0;
 }
 
-int blake2b_final(blake2b_state *S, void *out, size_t outlen) {
+int aquablake2b_final(aquablake2b_state *S, void *out, size_t outlen) {
     uint8_t buffer[BLAKE2B_OUTBYTES] = {0};
     unsigned int i;
 
@@ -275,10 +275,10 @@ int blake2b_final(blake2b_state *S, void *out, size_t outlen) {
         return -1;
     }
 
-    blake2b_increment_counter(S, S->buflen);
-    blake2b_set_lastblock(S);
+    aquablake2b_increment_counter(S, S->buflen);
+    aquablake2b_set_lastblock(S);
     memset(&S->buf[S->buflen], 0, BLAKE2B_BLOCKBYTES - S->buflen); /* Padding */
-    blake2b_compress(S, S->buf);
+    aquablake2b_compress(S, S->buf);
 
     for (i = 0; i < 8; ++i) { /* Output full hash to temp buffer */
         store64(buffer + sizeof(S->h[i]) * i, S->h[i]);
@@ -293,7 +293,7 @@ int blake2b_final(blake2b_state *S, void *out, size_t outlen) {
 
 int blake2b(void *out, size_t outlen, const void *in, size_t inlen,
             const void *key, size_t keylen) {
-    blake2b_state S;
+    aquablake2b_state S;
     int ret = -1;
 
     /* Verify parameters */
@@ -310,19 +310,19 @@ int blake2b(void *out, size_t outlen, const void *in, size_t inlen,
     }
 
     if (keylen > 0) {
-        if (blake2b_init_key(&S, outlen, key, keylen) < 0) {
+        if (aquablake2b_init_key(&S, outlen, key, keylen) < 0) {
             goto fail;
         }
     } else {
-        if (blake2b_init(&S, outlen) < 0) {
+        if (aquablake2b_init(&S, outlen) < 0) {
             goto fail;
         }
     }
 
-    if (blake2b_update(&S, in, inlen) < 0) {
+    if (aquablake2b_update(&S, in, inlen) < 0) {
         goto fail;
     }
-    ret = blake2b_final(&S, out, outlen);
+    ret = aquablake2b_final(&S, out, outlen);
 
 fail:
     clear_internal_memory(&S, sizeof(S));
@@ -330,9 +330,9 @@ fail:
 }
 
 /* Argon2 Team - Begin Code */
-int blake2b_long(void *pout, size_t outlen, const void *in, size_t inlen) {
+int aquablake2b_long(void *pout, size_t outlen, const void *in, size_t inlen) {
     uint8_t *out = (uint8_t *)pout;
-    blake2b_state blake_state;
+    aquablake2b_state blake_state;
     uint8_t outlen_bytes[sizeof(uint32_t)] = {0};
     int ret = -1;
 
@@ -352,18 +352,18 @@ int blake2b_long(void *pout, size_t outlen, const void *in, size_t inlen) {
     } while ((void)0, 0)
 
     if (outlen <= BLAKE2B_OUTBYTES) {
-        TRY(blake2b_init(&blake_state, outlen));
-        TRY(blake2b_update(&blake_state, outlen_bytes, sizeof(outlen_bytes)));
-        TRY(blake2b_update(&blake_state, in, inlen));
-        TRY(blake2b_final(&blake_state, out, outlen));
+        TRY(aquablake2b_init(&blake_state, outlen));
+        TRY(aquablake2b_update(&blake_state, outlen_bytes, sizeof(outlen_bytes)));
+        TRY(aquablake2b_update(&blake_state, in, inlen));
+        TRY(aquablake2b_final(&blake_state, out, outlen));
     } else {
         uint32_t toproduce;
         uint8_t out_buffer[BLAKE2B_OUTBYTES];
         uint8_t in_buffer[BLAKE2B_OUTBYTES];
-        TRY(blake2b_init(&blake_state, BLAKE2B_OUTBYTES));
-        TRY(blake2b_update(&blake_state, outlen_bytes, sizeof(outlen_bytes)));
-        TRY(blake2b_update(&blake_state, in, inlen));
-        TRY(blake2b_final(&blake_state, out_buffer, BLAKE2B_OUTBYTES));
+        TRY(aquablake2b_init(&blake_state, BLAKE2B_OUTBYTES));
+        TRY(aquablake2b_update(&blake_state, outlen_bytes, sizeof(outlen_bytes)));
+        TRY(aquablake2b_update(&blake_state, in, inlen));
+        TRY(aquablake2b_final(&blake_state, out_buffer, BLAKE2B_OUTBYTES));
         memcpy(out, out_buffer, BLAKE2B_OUTBYTES / 2);
         out += BLAKE2B_OUTBYTES / 2;
         toproduce = (uint32_t)outlen - BLAKE2B_OUTBYTES / 2;
