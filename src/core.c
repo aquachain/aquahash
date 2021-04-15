@@ -521,6 +521,53 @@ void fill_first_blocks(uint8_t *blockhash, const argon2_instance_t *instance) {
     clear_internal_memory(blockhash_bytes, ARGON2_BLOCK_SIZE);
 }
 
+void initial_hash_opt_aqua(uint8_t *blockhash, argon2_context *context,
+	argon2_type type) {
+
+	static aquablake2b_state s_BlakeHashInit;
+	static int s_inited = 0;
+	if (!s_inited) {
+		aquablake2b_init(&s_BlakeHashInit, ARGON2_PREHASH_DIGEST_LENGTH);
+		
+		uint8_t value[sizeof(uint32_t)];
+
+		store32(&value, context->lanes);
+		aquablake2b_update(&s_BlakeHashInit, (const uint8_t *)&value, sizeof(value));
+
+		store32(&value, context->outlen);
+		aquablake2b_update(&s_BlakeHashInit, (const uint8_t *)&value, sizeof(value));
+
+		store32(&value, context->m_cost);
+		aquablake2b_update(&s_BlakeHashInit, (const uint8_t *)&value, sizeof(value));
+
+		store32(&value, context->t_cost);
+		aquablake2b_update(&s_BlakeHashInit, (const uint8_t *)&value, sizeof(value));
+
+		store32(&value, context->version);
+		aquablake2b_update(&s_BlakeHashInit, (const uint8_t *)&value, sizeof(value));
+
+		store32(&value, (uint32_t)type);
+		aquablake2b_update(&s_BlakeHashInit, (const uint8_t *)&value, sizeof(value));
+
+		store32(&value, context->pwdlen);
+		aquablake2b_update(&s_BlakeHashInit, (const uint8_t *)&value, sizeof(value));
+
+		memset(&s_BlakeHashInit.buf[68], 0, 12);
+
+		s_inited = 1;
+	}
+
+	aquablake2b_state BlakeHash;
+	BlakeHash = s_BlakeHashInit;
+
+	aquablake2b_update(&BlakeHash, (const uint8_t *)context->pwd, context->pwdlen);
+
+	// memset(&BlakeHash.buf[BlakeHash.buflen], 0, 12); // done in s_inited
+	BlakeHash.buflen += 12;
+
+	aquablake2b_final((aquablake2b_state *)&BlakeHash, blockhash, ARGON2_PREHASH_DIGEST_LENGTH);
+}
+
 void initial_hash(uint8_t *blockhash, argon2_context *context,
                   argon2_type type) {
     aquablake2b_state BlakeHash;
@@ -614,7 +661,8 @@ int initialize(argon2_instance_t *instance, argon2_context *context) {
     /* H_0 + 8 extra bytes to produce the first blocks */
     /* uint8_t blockhash[ARGON2_PREHASH_SEED_LENGTH]; */
     /* Hashing all inputs */
-    initial_hash(blockhash, context, instance->type);
+    //initial_hash(blockhash, context, instance->type);
+    initial_hash_opt_aqua(blockhash, context, instance->type);
     /* Zeroing 8 extra bytes */
     clear_internal_memory(blockhash + ARGON2_PREHASH_DIGEST_LENGTH,
                           ARGON2_PREHASH_SEED_LENGTH -

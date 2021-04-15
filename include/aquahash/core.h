@@ -162,6 +162,19 @@ int validate_inputs(const argon2_context *context);
 
 /*
  * Hashes all the inputs into @a blockhash[PREHASH_DIGEST_LENGTH], clears
+ * password and secret if needed (Optimized for Aqua)
+ * @param  context  Pointer to the Argon2 internal structure containing memory
+ * pointer, and parameters for time and space requirements.
+ * @param  blockhash Buffer for pre-hashing digest
+ * @param  type Argon2 type
+ * @pre    @a blockhash must have at least @a PREHASH_DIGEST_LENGTH bytes
+ * allocated
+ */
+void initial_hash_opt_aqua(uint8_t *blockhash, argon2_context *context,
+                  argon2_type type);
+
+/*
+ * Hashes all the inputs into @a blockhash[PREHASH_DIGEST_LENGTH], clears
  * password and secret if needed
  * @param  context  Pointer to the Argon2 internal structure containing memory
  * pointer, and parameters for time and space requirements.
